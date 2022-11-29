@@ -47,7 +47,7 @@ namespace OpenHackTask3
             {
                 if (item.GetValue("productId").ToString() == bodyProductId)
                     ifProductFound = true;
-
+//
                 if (item.GetValue("userId").ToString() == bodyUserId)
                     ifUserFound = true;
             }
