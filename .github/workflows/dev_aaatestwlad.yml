@@ -20,6 +20,11 @@ jobs:
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@v2
 
+      - name: 'Azure Login' 
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
         uses: actions/setup-dotnet@v1
         with:
@@ -39,4 +44,4 @@ jobs:
           app-name: 'aaatestwlad'
           slot-name: 'Production'
           package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_53D01FB7E11048149A995318F1CE4C40 }}
+          publish-profile: ${{ secrets.AZUREPROFILE }}
