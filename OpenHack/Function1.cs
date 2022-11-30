@@ -14,33 +14,21 @@ using Newtonsoft.Json.Linq;
 using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.Azure.Cosmos.Table;
-using CloudStorageAccount = Microsoft.WindowsAzure.Storage.CloudStorageAccount;
-using CloudTableClient = Microsoft.Azure.Cosmos.Table.CloudTableClient;
-using CloudTable = Microsoft.Azure.Cosmos.Table.CloudTable;
+using System.Xml.Linq;
+using Microsoft.Azure.Documents;
+using Microsoft.AspNetCore.Http;
 
 namespace OpenHack
 {
     public static class Function1
     {
-        // My experiments with Table Storage connection
-        /*
-        static string storageconn = "DefaultEndpointsProtocol=https;AccountName=task3wlad909d;AccountKey=zR46RH7WIRDLt30Uuo7z3IlAW3BVuc2v4z2A4+Gs1FpOOv0FNlxYcEBfQx1RBkBGViWlOTSxxQgW+AStzhl3Zg==;EndpointSuffix=core.windows.net"
-
-        static string table1 = "Ratings";
-
-        static void Main(string[] args)
-        {
-            CloudStorageAccount storageAcc = CloudStorageAccount.Parse(storageconn);
-            CloudTableClient tblclient = storageAcc.CreateCloudTableClient(new TableClientConfiguration());
-            CloudTable table = tblclient.GetTableReference(table1);
-
-            Console.ReadKey();
-        }
-        */
-
+      
         [FunctionName("Function1")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequestMessage req, [CosmosDB(
+        databaseName: "task3databasenew",
+        collectionName: "task3containernew",
+        ConnectionStringSetting = "ConnectionStringTask3")]IAsyncCollector<dynamic> documentsOut,
             ILogger log)
         {
 
@@ -48,11 +36,8 @@ namespace OpenHack
 
             if (!req.Method.Equals("POST"))
             {
-                var message = string.Format("Bad method, use POST instead");
-                Console.WriteLine(message);
 
-                // how do I fix it?
-                //return req.CreateResponse(HttpStatusCode.MethodNotAllowed, message);
+                return new BadRequestObjectResult("Bad method, use POST"); //400
             }
 
             var bodyContent = req.Content.ReadAsStringAsync().Result;
@@ -114,23 +99,37 @@ namespace OpenHack
 
             if (!ifUserFound || !ifProductFound)
             {
-                var message = string.Format("Invalid ProductID or UserID");
-                Console.WriteLine(message);
-
-                // throw 404
-                //return req.CreateErrorResponse(HttpStatusCode.MethodNotAllowed, message);
+                  // throw 404
+                return new NotFoundResult();
             }
             else
             {
-                // delete this else after we're finished
-                Console.WriteLine("good user and prodcu t id");
+
+                try {
+                    await documentsOut.AddAsync(new
+                    {
+
+                        userId = bodyJson.GetValue("userId").ToString(),
+                        productId = bodyJson.GetValue("productId").ToString(),
+                        locationName = bodyJson.GetValue("locationName").ToString(),
+                        rating = bodyJson.GetValue("rating").ToString(),
+                        userNotes = bodyJson.GetValue("userNotes").ToString()
+
+
+                    }); 
+                    }
+                catch {
+                     // throw 400
+                    return new BadRequestObjectResult("Duplicate ProductID and UserID"); // 400
+
+                };
             }
-            
-            
 
 
-            
-            log.LogInformation("C# HTTP trigger function processed a request.");
+
+
+
+                log.LogInformation("C# HTTP trigger function processed a request.");
 
             HttpContent content = req.Content;
             string jsonContent = content.ReadAsStringAsync().Result;
