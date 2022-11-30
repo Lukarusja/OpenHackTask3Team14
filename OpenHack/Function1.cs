@@ -129,7 +129,7 @@ namespace OpenHack
 
 
 
-                log.LogInformation("C# HTTP trigger function processed a request.");
+               // log.LogInformation("C# HTTP trigger function processed a request.");
 
             HttpContent content = req.Content;
             string jsonContent = content.ReadAsStringAsync().Result;
