@@ -111,7 +111,6 @@ namespace OpenHack
                 try {
                     await documentsOut.AddAsync(new
                     {
-
                         userId = bodyJson.GetValue("userId").ToString(),
                         productId = bodyJson.GetValue("productId").ToString(),
                         locationName = bodyJson.GetValue("locationName").ToString(),
