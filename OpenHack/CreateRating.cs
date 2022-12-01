@@ -34,12 +34,15 @@ namespace OpenHack
 
             // check if the Method is POST, if not, throw 405 error
 
-            if (!req.Method.Equals("POST"))
+            var method = new HttpMethod(req.Method.ToString().ToUpper());
+
+ 
+            if (!(method.ToString() == "POST"))
             {
 
                 return new BadRequestObjectResult("Bad method, use POST"); //400
             }
-
+            
             var bodyContent = req.Content.ReadAsStringAsync().Result;
             JObject bodyJson = JObject.Parse(bodyContent);
             
